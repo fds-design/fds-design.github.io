@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VisDice – Visual Design Dice</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7ff;
+      margin: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    p.description {
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .dice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      justify-items: center;
+      margin-bottom: 40px;
+    }
+    .dice {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 10px 10px 20px 10px;
+      width: 220px;
+      transition: transform 0.3s ease;
+    }
+    .dice img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .dice.rolling img {
+      transform: rotate(15deg) scale(1.05);
+      filter: blur(2px) brightness(1.2);
+    }
+    .dice.finished img {
+      transform: scale(1.02);
+      filter: brightness(1.1);
+    }
+    .dice-title {
+      font-weight: bold;
+      margin: 10px 0 5px 0;
+    }
+    .dice-code {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 10px;
+    }
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      background: #7779f8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #9496ff;
+    }
+    label {
+      font-size: 14px;
+    }
+    input[type="checkbox"], input[type="number"] {
+      cursor: pointer;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+    }
+    .bottom-controls {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>VisDice – Visual Design Dice</h1>
+  <p class="description">A web version of the VisDice application for design thinking and ideation. Click to roll each die or roll them all at once.</p>
+
+  <div class="dice-grid" id="diceGrid"></div>
+
+  <div class="bottom-controls">
+    <label>Animation duration (s): 
+      <input type="number" id="durationInput" step="0.1" value="2.0" min="0.1" />
+    </label>
+    <label><input type="checkbox" id="showAllToggle"> Show all</label>
+    <button id="rollAllBtn">Roll All</button>
+    <label><input type="checkbox" id="showNamesToggle" checked> Show names</label>
+  </div>
+
+  <script>
+    const diceNames = ['D', 'E', 'P', 'V', 'A', 'I'];
+    const diceLabels = ['Design', 'Environment', 'Proxemics', 'Display', 'Art', 'Interaction'];
+
+    const diceGrid = document.getElementById('diceGrid');
+    const rollAllBtn = document.getElementById('rollAllBtn');
+    const showAllToggle = document.getElementById('showAllToggle');
+    const showNamesToggle = document.getElementById('showNamesToggle');
+    const durationInput = document.getElementById('durationInput');
+
+    let flickerDuration = 2.0;
+
+    const dice = [];
+
+    // Initialize dice
+    for (let i = 0; i < 6; i++) {
+      const container = document.createElement('div');
+      container.className = 'dice';
+
+      const title = document.createElement('div');
+      title.className = 'dice-title';
+      title.textContent = diceLabels[i];
+
+      const code = document.createElement('div');
+      code.className = 'dice-code';
+      code.textContent = diceNames[i] + '1';
+
+      const img = document.createElement('img');
+      img.src = `images/dice-${diceNames[i]}-01.jpg`;
+      img.alt = `${diceLabels[i]} dice`;
+      img.style.display = 'none';
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+
+      const rollBtn = document.createElement('button');
+      rollBtn.textContent = 'Roll';
+
+      const toggle = document.createElement('input');
+      toggle.type = 'checkbox';
+      const toggleLabel = document.createElement('label');
+      toggleLabel.textContent = 'Show';
+      toggleLabel.prepend(toggle);
+
+      controls.appendChild(rollBtn);
+      controls.appendChild(toggleLabel);
+
+      container.appendChild(title);
+      container.appendChild(code);
+      container.appendChild(img);
+      container.appendChild(controls);
+
+      diceGrid.appendChild(container);
+
+      const d = {
+        name: diceNames[i],
+        label: diceLabels[i],
+        container,
+        img,
+        title,
+        code,
+        toggle,
+        rollBtn,
+        visible: false,
+        flickerInterval: null
+      };
+      dice.push(d);
+
+      // Toggle show/hide
+      toggle.addEventListener('change', () => {
+        d.visible = toggle.checked;
+        img.style.display = d.visible ? 'block' : 'none';
+      });
+
+      // Roll single dice
+      rollBtn.addEventListener('click', () => rollDice(d));
+    }
+
+    // Roll logic with animation
+    function rollDice(d) {
+      if (!d.visible) return;
+
+      d.container.classList.add('rolling');
+      d.container.classList.remove('finished');
+      const start = Date.now();
+      const totalTime = flickerDuration * 1000;
+      clearInterval(d.flickerInterval);
+
+      d.flickerInterval = setInterval(() => {
+        const elapsed = Date.now() - start;
+        if (elapsed >= totalTime) {
+          clearInterval(d.flickerInterval);
+          const face = Math.floor(Math.random() * 6) + 1;
+          d.img.src = `images/dice-${d.name}-${String(face).padStart(2,'0')}.jpg`;
+          d.code.textContent = d.name + face;
+          d.container.classList.remove('rolling');
+          d.container.classList.add('finished');
+          setTimeout(() => d.container.classList.remove('finished'), 500);
+          return;
+        }
+        const face = Math.floor(Math.random() * 6) + 1;
+        d.img.src = `images/dice-${d.name}-${String(face).padStart(2,'0')}.jpg`;
+        d.code.textContent = d.name + face;
+      }, 100);
+    }
+
+    // Roll all dice
+    rollAllBtn.addEventListener('click', () => {
+      dice.forEach(d => {
+        d.visible = true;
+        d.toggle.checked = true;
+        d.img.style.display = 'block';
+        rollDice(d);
+      });
+    });
+
+    // Show all toggle
+    showAllToggle.addEventListener('change', () => {
+      const show = showAllToggle.checked;
+      dice.forEach(d => {
+        d.visible = show;
+        d.toggle.checked = show;
+        d.img.style.display = show ? 'block' : 'none';
+      });
+    });
+
+    // Show names toggle
+    showNamesToggle.addEventListener('change', () => {
+      const show = showNamesToggle.checked;
+      dice.forEach(d => {
+        d.title.style.display = show ? 'block' : 'none';
+      });
+    });
+
+    // Duration input
+    durationInput.addEventListener('input', () => {
+      const val = parseFloat(durationInput.value);
+      if (!isNaN(val) && val > 0) flickerDuration = val;
+    });
+  </script>
+</body>
+</html>

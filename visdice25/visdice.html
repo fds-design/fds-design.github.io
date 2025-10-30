@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VisDice -- Visualisation Design Ideation</title>
+  <style>
+    @media (max-width: 60px) {
+    .logo {
+          width: 20px;
+          top: 8px;
+          right: 10px;
+        }
+      }
+    header {
+      position: relative;
+    }
+
+    .logo {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      width: 150px;  /* adjust as needed */
+      height: auto;
+      opacity: 0.95;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+body {
+      font-family: Arial, sans-serif;
+      background: #f5f7ff;
+      margin: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 5px;
+    }
+    p.description {
+      color: #555;
+      margin-bottom: 30px;
+    }
+    .dice-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      justify-items: center;
+      margin-bottom: 40px;
+    }
+    .dice {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 10px 10px 20px 10px;
+      width: 220px;
+    }
+    .dice img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      border: 0px solid #ccc;
+      border-radius: 10px;
+      background: #fff;
+    }
+    .dice-title {
+      font-weight: bold;
+      margin: 10px 0 5px 0;
+    }
+    .dice-code {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 10px;
+    }
+    .controls {
+      margin-top: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button, input[type="checkbox"], input[type="number"] {
+      cursor: pointer;
+    }
+    button {
+      background: #7779f8;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #9496ff;
+    }
+    .bottom-controls {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    label {
+      font-size: 14px;
+    }
+    input[type="number"] {
+      width: 60px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #aaa;
+    }
+    .citation {
+      margin-top: 50px;
+      text-align: center;
+      color: #444;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5em;
+    }
+
+    .citation h3 {
+      margin-bottom: 10px;
+      color: #222;
+    }
+
+    .citation a {
+      color: #7779f8;
+      text-decoration: none;
+    }
+
+    .citation a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="https://www.bangor.ac.uk/" target="_blank" title="Bangor University">
+    <img src="images/bangor-logo-tr.png" alt="Bangor University logo" class="logo">
+  </a>
+  </header>
+
+  <h1>VisDice - Visualisation Design Ideation</h1>
+  <p class="description">A web version of the VisDice application for design thinking and ideation. Click to roll each die or roll them all at once.</p>
+  
+  <div class="dice-grid" id="diceGrid"></div>
+
+  <div class="bottom-controls">
+    <label>Animation duration (s): 
+      <input type="number" id="durationInput" step="0.1" value="2.0" min="0.1" />
+    </label>
+    <label><input type="checkbox" id="showAllToggle"> Show all</label>
+    <button id="rollAllBtn">Roll All</button>
+    <label><input type="checkbox" id="showNamesToggle" checked> Show names</label>
+  </div>
+
+  <script>
+    const diceNames = ['D', 'E', 'P', 'V', 'A', 'I'];
+    const diceLabels = ['Design', 'Environment', 'Proxemics', 'Display', 'Art', 'Interaction'];
+
+    const diceGrid = document.getElementById('diceGrid');
+    const rollAllBtn = document.getElementById('rollAllBtn');
+    const showAllToggle = document.getElementById('showAllToggle');
+    const showNamesToggle = document.getElementById('showNamesToggle');
+    const durationInput = document.getElementById('durationInput');
+
+    let flickerDuration = 2.0;
+
+    const dice = [];
+
+    // Initialize dice
+    for (let i = 0; i < 6; i++) {
+      const container = document.createElement('div');
+      container.className = 'dice';
+
+      const title = document.createElement('div');
+      title.className = 'dice-title';
+      title.textContent = diceLabels[i];
+
+      const code = document.createElement('div');
+      code.className = 'dice-code';
+      code.textContent = diceNames[i] + '1';
+
+      const img = document.createElement('img');
+      img.src = `images/dice-${diceNames[i]}-01.jpg`;
+      img.alt = `${diceLabels[i]} dice`;
+      img.style.display = 'none';
+
+      const controls = document.createElement('div');
+      controls.className = 'controls';
+
+      const rollBtn = document.createElement('button');
+      rollBtn.textContent = 'Roll';
+      const toggle = document.createElement('input');
+      toggle.type = 'checkbox';
+      const toggleLabel = document.createElement('label');
+      toggleLabel.textContent = 'Show';
+      toggleLabel.prepend(toggle);
+
+      controls.appendChild(rollBtn);
+      controls.appendChild(toggleLabel);
+
+      container.appendChild(title);
+      container.appendChild(code);
+      container.appendChild(img);
+      container.appendChild(controls);
+
+      diceGrid.appendChild(container);
+
+      dice.push({
+        name: diceNames[i],
+        label: diceLabels[i],
+        img,
+        title,
+        code,
+        toggle,
+        rollBtn,
+        visible: false,
+        flickerInterval: null
+      });
+
+      // Toggle show/hide
+      toggle.addEventListener('change', () => {
+        d.visible = toggle.checked;
+        img.style.display = d.visible ? 'block' : 'none';
+      });
+
+      // Roll single dice
+      const d = dice[i];
+      rollBtn.addEventListener('click', () => rollDice(d));
+    }
+
+    // Rolling function
+    function rollDice(d) {
+      if (!d.visible) return;
+      const start = Date.now();
+      const totalTime = flickerDuration * 1000;
+      clearInterval(d.flickerInterval);
+
+      d.flickerInterval = setInterval(() => {
+        const elapsed = Date.now() - start;
+        if (elapsed >= totalTime) {
+          clearInterval(d.flickerInterval);
+          const face = Math.floor(Math.random() * 6) + 1;
+          d.img.src = `images/dice-${d.name}-${String(face).padStart(2,'0')}.jpg`;
+          d.code.textContent = d.name + face;
+          return;
+        }
+        const face = Math.floor(Math.random() * 6) + 1;
+        d.img.src = `images/dice-${d.name}-${String(face).padStart(2,'0')}.jpg`;
+        d.code.textContent = d.name + face;
+      }, 100);
+    }
+
+    // Roll all dice
+    rollAllBtn.addEventListener('click', () => {
+      dice.forEach(d => {
+        d.visible = true;
+        d.toggle.checked = true;
+        d.img.style.display = 'block';
+        rollDice(d);
+      });
+    });
+
+    // Show all toggle
+    showAllToggle.addEventListener('change', () => {
+      const show = showAllToggle.checked;
+      dice.forEach(d => {
+        d.visible = show;
+        d.toggle.checked = show;
+        d.img.style.display = show ? 'block' : 'none';
+      });
+    });
+
+    // Show names toggle
+    showNamesToggle.addEventListener('change', () => {
+      const show = showNamesToggle.checked;
+      dice.forEach(d => {
+        d.title.style.display = show ? 'block' : 'none';
+      });
+    });
+
+    // Duration input
+    durationInput.addEventListener('input', () => {
+      const val = parseFloat(durationInput.value);
+      if (!isNaN(val) && val > 0) flickerDuration = val;
+    });
+  </script>
+
+  <hr style="margin: 40px auto; width: 80%; border: 0; border-top: 1px solid #ccc;" />
+
+  <div class="citation">
+    <h3>To cite this work:</h3>
+    <p><i>
+      Owen, A., &amp; <A HREF="https://www.bangor.ac.uk/staff/scse/jonathan-roberts-015994/en">Roberts, J. C.</A> (2023). Inspire and Create: Unveiling the Potential of VisDice in Visualization Design. 
+      In N. Cao, B. Kozlikova, J. Xia, &amp; W. Willett (Eds.), <b>Poster publications at IEEE VIS 2023: Visualization &amp; Visual Analytics</b>. IEEE VIS 2023 Posters, IEEE Computer Society Press.
+    </i>
+      [<a href="https://research.bangor.ac.uk/en/publications/inspire-and-create-unveiling-the-potential-of-visdice-in-visualiz/" target="_blank">Publication</a>] 
+      [<a href="https://virtual.ieeevis.org/year/2023/poster_v-vis-posters-1059.html" target="_blank">Poster</a>]
+    </p>
+  </div>
+
+</body>
+</html>
