@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>Design Idea Spinner</title>
+
+<style type="text/css">
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+#dial {
+    width: 400px;
+    margin: 50px auto;
+    padding: 30px;
+    border: 3px solid #333;
+    background-color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+button {
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+</style>
+
+<script type="text/javascript">
+var items = [
+    "1- Diagram",
+    "2- Network",
+    "3- Map",
+    "4- Chart",
+    "5- Symbol",
+    "6- Linear",
+    "7- Cumulative (Adding)",
+    "8- Circular",
+    "9-Irregular",
+    "10- Perspective (3D)",
+    "11- Icon or Photo",
+    "12- Size",
+    "13- Shape",
+    "14- Orientation",
+    "15- Colour",
+    "16- Texture",
+    "17- Motion",
+    "18- Abstract Art",
+    "19- People and Portraits",
+    "20- Pixel Art",
+    "21- Geometric Patterns",
+    "22- Minimalistic",
+    "23- Nature",
+    "24- Engineering Buildings",
+    "25- Typeface",
+    "26 Architecture"
+];
+
+var spinning = false;
+var intervalId;
+
+function spinDial() {
+    if (spinning) return;
+
+    spinning = true;
+    var dial = document.getElementById("dial");
+    var count = 0;
+    var maxSpins = 30 + Math.floor(Math.random() * 20);
+
+    intervalId = setInterval(function() {
+        var randomIndex = Math.floor(Math.random() * items.length);
+        dial.innerHTML = items[randomIndex];
+        count++;
+
+        if (count >= maxSpins) {
+            clearInterval(intervalId);
+            spinning = false;
+        }
+    }, 100);
+}
+</script>
+
+</head>
+
+<body>
+
+<h1>Design Inspiration Spinner</h1>
+
+<div id="dial">
+    Press Spin
+</div>
+
+<button onclick="spinDial()">Spin</button>
+
+</body>
+</html>
