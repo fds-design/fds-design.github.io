@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Information Visualisation Idea Generator</title>
+ 
+<style>
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f5f5;
+    padding: 30px;
+    text-align: center;
+}
+ 
+h1 {
+    margin-bottom: 10px;
+}
+ 
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+}
+ 
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+ 
+.spinner-box {
+    background: white;
+    width: 280px;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+ 
+.spinner-box h2 {
+    margin-top: 0;
+    font-size: 1.2em;
+}
+ 
+.result {
+    min-height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.4em;
+    font-weight: bold;
+    background: #fafafa;
+}
+ 
+button {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+}
+ 
+button:hover {
+    background: #005ea6;
+}
+ 
+.spin-all {
+    margin-top: 25px;
+    padding: 12px 28px;
+    font-size: 1.1em;
+}
+ 
+.challenge-box {
+    max-width: 900px;
+    margin: 35px auto 0 auto;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+ 
+.challenge-box h2 {
+    margin-top: 0;
+}
+ 
+#instruction {
+    font-size: 1.25em;
+    line-height: 1.6;
+}
+ 
+strong {
+    color: #0078d4;
+}
+</style>
+</head>
+ 
+<body>
+ 
+<h1>🎲 Information Visualisation Idea Generator</h1>
+ 
+<p class="subtitle">
+Use the random combination to inspire a new visualisation sketch.
+</p>
+ 
+<div class="container">
+ 
+    <div class="spinner-box">
+        <h2>Display Structure</h2>
+        <div class="result" id="displayResult">Diagram</div>
+        <button onclick="spin('display')">Spin</button>
+    </div>
+ 
+    <div class="spinner-box">
+        <h2>Mark</h2>
+        <div class="result" id="markResult">Point</div>
+        <button onclick="spin('mark')">Spin</button>
+    </div>
+ 
+    <div class="spinner-box">
+        <h2>Retinal Variable</h2>
+        <div class="result" id="retinalResult">Position</div>
+        <button onclick="spin('retinal')">Spin</button>
+    </div>
+ 
+</div>
+ 
+<button class="spin-all" onclick="spinAll()">🎲 Spin All</button>
+ 
+<div class="challenge-box">
+    <h2>Your Challenge</h2>
+ 
+    <p id="instruction">
+        Use <strong>Diagram</strong>, <strong>Point</strong> and
+        <strong>Position</strong> to create a visual representation of your chosen data.
+    </p>
+ 
+    <p>
+        Sketch rapidly. Explore the design space. Do not worry about artistic quality.
+    </p>
+</div>
+ 
+<script>
+ 
+const displayOptions = [
+    "Diagram",
+    "Chart",
+    "Map",
+    "Symbol Collection",
+    "Composite Display"
+];
+ 
+const markOptions = [
+    "Point",
+    "Line",
+    "Area",
+    "Shape",
+    "Icon",
+    "Picture"
+];
+ 
+const retinalOptions = [
+    "Position",
+    "Size",
+    "Shape",
+    "Hue",
+    "Value",
+    "Texture",
+    "Orientation"
+];
+ 
+function updateInstruction() {
+ 
+    const display =
+        document.getElementById("displayResult").innerText;
+ 
+    const mark =
+        document.getElementById("markResult").innerText;
+ 
+    const retinal =
+        document.getElementById("retinalResult").innerText;
+ 
+    document.getElementById("instruction").innerHTML =
+        `Use <strong>${display}</strong>, <strong>${mark}</strong> and <strong>${retinal}</strong> to create a visual representation of your chosen data.`;
+}
+ 
+function animateSpin(elementId, options) {
+ 
+    const element = document.getElementById(elementId);
+ 
+    let count = 0;
+ 
+    const interval = setInterval(() => {
+ 
+        element.innerHTML =
+            options[Math.floor(Math.random() * options.length)];
+ 
+        count++;
+ 
+        if (count > 25) {
+ 
+            clearInterval(interval);
+ 
+            element.innerHTML =
+                options[Math.floor(Math.random() * options.length)];
+ 
+            updateInstruction();
+        }
+ 
+    }, 50);
+}
+ 
+function spin(type) {
+ 
+    if (type === "display")
+        animateSpin("displayResult", displayOptions);
+ 
+    if (type === "mark")
+        animateSpin("markResult", markOptions);
+ 
+    if (type === "retinal")
+        animateSpin("retinalResult", retinalOptions);
+}
+ 
+function spinAll() {
+    spin("display");
+    spin("mark");
+    spin("retinal");
+}
+ 
+updateInstruction();
+ 
+</script>
